@@ -41,6 +41,26 @@ func (root *Element) printElements() {
 	fmt.Print("\n")
 }
 
+func (root *Element) printReverseElements() {
+	pointer := root.getLastElemnt()
+
+	for pointer != nil {
+		fmt.Printf("| %v |\t", pointer.value)
+		pointer = pointer.prev
+	}
+	fmt.Print("\n")
+}
+
+func (root *Element) getLastElemnt() *Element {
+	pointer := root
+
+	for pointer.next != nil {
+		pointer = pointer.next
+	}
+
+	return pointer
+}
+
 func (root *Element) lenElements() int {
 	var length int
 	pointer := root
@@ -61,5 +81,9 @@ func main() {
 	var root Element
 	root.createFromString(s)
 
-	fmt.Println(root.next.lenElements())
+	root.printElements()
+	fmt.Print("\n\n")
+	root.printReverseElements()
+	fmt.Print("\n\n")
+	root.printElements()
 }
