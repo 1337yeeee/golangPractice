@@ -41,7 +41,7 @@ func (root *Element) createFromString(s string) {
 	cur.next = nil
 }
 
-func (root *Element) printElements() {
+func (root *Element) printElements(cursor *Element) {
 	pointer := root
 	length := root.lenElements()
 
@@ -51,7 +51,11 @@ func (root *Element) printElements() {
 	fmt.Print("\n")
 
 	for pointer != nil {
-		fmt.Printf("| %v |\t", pointer.value)
+		if pointer == cursor {
+			fmt.Printf("\033[92m! %v !\033[0m\t", pointer.value)
+		} else {
+			fmt.Printf("| %v |\t", pointer.value)
+		}
 		pointer = pointer.next
 	}
 	fmt.Print("\n")
@@ -62,7 +66,7 @@ func (root *Element) printElements() {
 	fmt.Print("\n")
 }
 
-func (root *Element) printElementsReverse() {
+func (root *Element) printElementsReverse(cursor *Element) {
 	pointer := root.getLastElemnt()
 	length := root.lenElements()
 
@@ -72,7 +76,11 @@ func (root *Element) printElementsReverse() {
 	fmt.Print("\n")
 
 	for pointer != nil {
-		fmt.Printf("| %v |\t", pointer.value)
+		if pointer == cursor {
+			fmt.Printf("\033[92m! %v !\033[0m\t", pointer.value)
+		} else {
+			fmt.Printf("| %v |\t", pointer.value)
+		}
 		pointer = pointer.prev
 	}
 	fmt.Print("\n")
@@ -109,6 +117,7 @@ func (root *Element) lenElements() int {
 	return length
 }
 
+// "1. Create Elements from string\n"
 func menuFuncOption1(root *Element) {
 	clear()
 	fmt.Print("Enter a string: ")
@@ -117,32 +126,54 @@ func menuFuncOption1(root *Element) {
 	root.createFromString(s)
 }
 
-func menuFuncOption2(root *Element) {
+// "2. Print list reverse\n"
+func menuFuncOption2(root *Element, cursor *Element) {
 	clear()
 	fmt.Print("You've chosen `Print list reverse`\n\n")
-	root.printElementsReverse()
+	root.printElementsReverse(cursor)
 	fmt.Print("\nPress Enter to continue\n\n")
 	fmt.Scanln()
 }
 
+// "3. Delete list\n"
 func menuFuncOption3(root *Element) {
 	newRoot := Element{}
 	*root = newRoot
 }
 
+// "4. Move Cursor left\n",
+func menuFuncOption4(cursor *Element) *Element {
+	if cursor.prev != nil {
+		return cursor.prev
+	} else {
+		return cursor
+	}
+}
+
+// "5. Move Cursor right\n"
+func menuFuncOption5(cursor *Element) *Element {
+	if cursor.next != nil {
+		return cursor.next
+	} else {
+		return cursor
+	}
+}
+
 func main() {
 	var root Element
-	// cursor := &root
+	cursor := &root
 
 	run:=true
 	for run {
 		clear()
-		root.printElements()
+		root.printElements(cursor)
 		fmt.Print(
 "Shose what to do:\n",
 "1. Create Elements from string\n",
 "2. Print list reverse\n",
 "3. Delete list\n",
+"4. Move Cursor left\n",
+"5. Move Cursor right\n",
 "0. Quite.\n")
 		var choice rune
 		fmt.Scanf("%c", &choice)
@@ -153,9 +184,13 @@ func main() {
 			case '1':
 				menuFuncOption1(&root)
 			case '2':
-				menuFuncOption2(&root)
+				menuFuncOption2(&root, cursor)
 			case '3':
 				menuFuncOption3(&root)
+			case '4':
+				cursor = menuFuncOption4(cursor)
+			case '5':
+				cursor = menuFuncOption5(cursor)
 			case '0':
 				run = false 
 		}
