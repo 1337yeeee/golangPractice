@@ -120,10 +120,16 @@ func (root *Element) lenElements() int {
 // "1. Create Elements from string\n"
 func menuFuncOption1(root *Element) {
 	clear()
-	fmt.Print("Enter a string: ")
-	var s string
-	fmt.Scan(&s)
-	root.createFromString(s)
+
+	if root.value != "" {
+		fmt.Print("Before you do this, delete the list")
+		fmt.Scanln()
+	} else {
+		fmt.Print("Enter a string: ")
+		var s string
+		fmt.Scan(&s)
+		root.createFromString(s)
+	}
 }
 
 // "2. Print list reverse\n"
@@ -159,12 +165,87 @@ func menuFuncOption5(cursor *Element) *Element {
 	}
 }
 
+// "6. Add symbol before Cursor\n"
+func menuFuncOption6(cursor *Element, root *Element) (*Element, *Element) {
+	clear()
+	fmt.Println("Enter the symbol that should be added before Cursor")
+	var symbol string
+	fmt.Scanln(&symbol)
+	if symbol != "" {
+		symbol = symbol[:1]
+	} else {
+		return root, cursor
+	}
+
+	if root.value == "" {
+		root.value = symbol
+
+		return root, cursor
+
+	} else if cursor.prev == nil {
+		var newElement Element
+		newElement.value = symbol
+		newElement.next = root
+		root.prev = &newElement
+
+		return &newElement, newElement.next
+
+	} else {
+		prevElement := cursor.prev
+		var newElement Element
+		newElement.value = symbol
+		newElement.prev = prevElement
+		newElement.next = cursor
+		prevElement.next = &newElement
+		cursor.prev = &newElement
+
+		return root, cursor
+	}
+}
+
+// "7. Add symbol after Cursor\n"
+func menuFuncOption7(cursor *Element, root *Element) {
+	clear()
+	fmt.Println("Enter the symbol that should be added after Cursor")
+	var symbol string
+	fmt.Scanln(&symbol)
+	if symbol != "" {
+		symbol = symbol[:1]
+	} else {
+		return
+	}
+
+	if root.value == "" {
+		root.value = symbol
+
+	} else if cursor.next == nil {
+
+		var newElement Element
+		newElement.value = symbol
+		newElement.prev = cursor
+		cursor.next = &newElement
+
+	} else {
+
+		nextElement := cursor.next
+		var newElement Element
+		newElement.value = symbol
+		newElement.next = nextElement
+		newElement.prev = cursor
+		nextElement.prev = &newElement
+		cursor.next = &newElement
+	}
+}
+
 func main() {
-	var root Element
-	cursor := &root
+	var __Root Element
+	root := &__Root
+	cursor := root
 
 	run:=true
 	for run {
+		fmt.Printf("root: %v; address: %p\n", root, root)
+		fmt.Printf("cursor: %v; address: %p\n", cursor, cursor)
 		clear()
 		root.printElements(cursor)
 		fmt.Print(
@@ -174,6 +255,8 @@ func main() {
 "3. Delete list\n",
 "4. Move Cursor left\n",
 "5. Move Cursor right\n",
+"6. Add symbol before Cursor\n",
+"7. Add symbol after Cursor\n",
 "0. Quite.\n")
 		var choice rune
 		fmt.Scanf("%c", &choice)
@@ -182,19 +265,21 @@ func main() {
 
 		switch choice {
 			case '1':
-				menuFuncOption1(&root)
+				menuFuncOption1(root)
 			case '2':
-				menuFuncOption2(&root, cursor)
+				menuFuncOption2(root, cursor)
 			case '3':
-				menuFuncOption3(&root)
+				menuFuncOption3(root)
 			case '4':
 				cursor = menuFuncOption4(cursor)
 			case '5':
 				cursor = menuFuncOption5(cursor)
+			case '6':
+				root, cursor = menuFuncOption6(cursor, root)
+			case '7':
+				menuFuncOption7(cursor, root)
 			case '0':
 				run = false 
 		}
 	}
 }
-
-// TODO укзатель на рабочий элемент
