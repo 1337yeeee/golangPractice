@@ -27,6 +27,17 @@ func clear() {
 	cmd.Run()
 }
 
+func (root *Element) printElementsRaw() {
+	cur := root
+	var i int
+
+	for cur != nil {
+		fmt.Printf("%d| value: %v; address: %p\n", i, cur, cur)
+		cur = cur.next
+		i++
+	}
+}
+
 func (root *Element) createFromString(s string) {
 	cur := root
 
@@ -105,7 +116,7 @@ func (root *Element) lenElements() int {
 	var length int
 	pointer := root
 
-	if pointer.next == nil {
+	if pointer.value == "" {
 		return 0
 	}
 
@@ -148,6 +159,7 @@ func menuFuncOption3(root *Element) {
 }
 
 // "4. Move Cursor left\n",
+// returns cursor (new or current, depends)
 func menuFuncOption4(cursor *Element) *Element {
 	if cursor.prev != nil {
 		return cursor.prev
@@ -157,6 +169,7 @@ func menuFuncOption4(cursor *Element) *Element {
 }
 
 // "5. Move Cursor right\n"
+// returns cursor (new or current, depends)
 func menuFuncOption5(cursor *Element) *Element {
 	if cursor.next != nil {
 		return cursor.next
@@ -166,6 +179,7 @@ func menuFuncOption5(cursor *Element) *Element {
 }
 
 // "6. Add symbol before Cursor\n"
+// returns root and cursor (new or current, depends)
 func menuFuncOption6(cursor *Element, root *Element) (*Element, *Element) {
 	clear()
 	fmt.Println("Enter the symbol that should be added before Cursor")
@@ -237,6 +251,34 @@ func menuFuncOption7(cursor *Element, root *Element) {
 	}
 }
 
+// "8. Delete symbol before Cursor\n"
+// returns root (new or current, depends)
+func menuFuncOption8(cursor *Element, root *Element) *Element {
+	if cursor.prev == nil {
+		return root
+	} else if cursor.prev == root {
+		cursor.prev = nil
+		return cursor
+	} else {
+		tmp := cursor.prev.prev
+		tmp.next = cursor
+		cursor.prev = tmp
+		return root
+	}
+}
+
+// "9. Delete symbol after Cursor\n"
+func menuFuncOption9(cursor *Element) {
+	if cursor.next == nil {
+	} else if cursor.next.next == nil {
+		cursor.next = nil
+	} else if cursor.next != nil{
+		tmp := cursor.next.next
+		tmp.prev = cursor
+		cursor.next = tmp
+	}
+}
+
 func main() {
 	var __Root Element
 	root := &__Root
@@ -244,8 +286,6 @@ func main() {
 
 	run:=true
 	for run {
-		fmt.Printf("root: %v; address: %p\n", root, root)
-		fmt.Printf("cursor: %v; address: %p\n", cursor, cursor)
 		clear()
 		root.printElements(cursor)
 		fmt.Print(
@@ -257,11 +297,19 @@ func main() {
 "5. Move Cursor right\n",
 "6. Add symbol before Cursor\n",
 "7. Add symbol after Cursor\n",
+"8. Delete symbol before Cursor\n",
+"9. Delete symbol after Cursor\n",
 "0. Quite.\n")
-		var choice rune
-		fmt.Scanf("%c", &choice)
-		fmt.Scanln()
 
+// Scans the entire line, then selects the first character entered
+// and puts it into choice {rune}
+		var input string
+		var choice rune
+		fmt.Scanf("%s", &input)
+		for _, v := range input {
+			choice = v
+			break
+		}
 
 		switch choice {
 			case '1':
@@ -278,6 +326,10 @@ func main() {
 				root, cursor = menuFuncOption6(cursor, root)
 			case '7':
 				menuFuncOption7(cursor, root)
+			case '8':
+				root = menuFuncOption8(cursor, root)
+			case '9':
+				menuFuncOption9(cursor)
 			case '0':
 				run = false 
 		}
